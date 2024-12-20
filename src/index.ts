@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import axios from "axios";
 import { EMA, IchimokuCloud } from "technicalindicators";
 
 const app = new Hono();
@@ -43,8 +44,8 @@ const TIMEFRAMES = ["1d", "4h", "1h"];
 const COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
 
 async function fetchKlines(symbol: string, interval: string, limit: number = 200): Promise<BinanceKline[]> {
-    const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
-    const data = await response.json();
+    const response = await axios.get(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
+    const data = response.data;
     return data.map((k: any[]) => ({
         openTime: k[0],
         open: k[1],
@@ -66,10 +67,7 @@ function calculateIndicators(klines: BinanceKline[]) {
     const currentPrice = prices[prices.length - 1];
 
     // Calculate EMA
-    const emaValues = EMA.calculate({
-        period: 155,
-        values: prices,
-    });
+    const emaValues = EMA.calculate({ period: 155, values: prices });
     const ema = emaValues[emaValues.length - 1];
 
     // Calculate Kijun-sen
@@ -87,15 +85,9 @@ function calculateIndicators(klines: BinanceKline[]) {
     const buffer = currentPrice * 0.001;
 
     const emaCondition = currentPrice > ema + buffer ? "above" : currentPrice < ema - buffer ? "below" : "none";
-
     const kijunCondition = currentPrice > kijunSen + buffer ? "above" : currentPrice < kijunSen - buffer ? "below" : "none";
 
-    return {
-        ema,
-        kijunSen,
-        emaCondition,
-        kijunCondition,
-    };
+    return { ema, kijunSen, emaCondition, kijunCondition };
 }
 
 app.get("/analysis", async (c) => {
@@ -120,12 +112,7 @@ app.get("/analysis", async (c) => {
                 isAboveAll: Object.values(timeframeData).every((tf) => tf.emaCondition === "above" && tf.kijunCondition === "above"),
             };
 
-            results.push({
-                symbol,
-                currentPrice: parseFloat((await fetchKlines(symbol, "1m", 1))[0].close),
-                timeframes: timeframeData,
-                summary,
-            });
+            results.push({ symbol, currentPrice: parseFloat((await fetchKlines(symbol, "1m", 1))[0].close), timeframes: timeframeData, summary });
         }
 
         return c.json(results);
