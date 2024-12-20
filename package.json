@@ -1,17 +1,18 @@
 {
-  "name": "my-app",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts"
-  },
-  "dependencies": {
-    "axios": "^1.7.9",
-    "grammy": "^1.33.0",
-    "hono": "^4.6.14",
-    "node-telegram-bot-api": "^0.66.0",
-    "technicalindicators": "^3.1.0"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/node-telegram-bot-api": "^0.64.7"
-  }
+    "name": "my-app",
+    "scripts": {
+        "dev": "bun run --hot src/index.ts",
+        "start": "bun run src/index.ts"
+    },
+    "dependencies": {
+        "axios": "^1.7.9",
+        "grammy": "^1.33.0",
+        "hono": "^4.6.14",
+        "node-telegram-bot-api": "^0.66.0",
+        "technicalindicators": "^3.1.0"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/node-telegram-bot-api": "^0.64.7"
+    }
 }

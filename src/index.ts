@@ -639,4 +639,6 @@ function getTimeToNextCheck(): string {
     return `${minutes} minutes`;
 }
 
+app.get("/health", (c) => c.text("OK"));
+
 export default app;
